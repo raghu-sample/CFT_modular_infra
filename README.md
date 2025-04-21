@@ -34,3 +34,62 @@ Project 1: Modular Networking + Compute
    aws cloudformation delete-stack --stack-name network-stack
  Next Steps- Enable drift detection in the AWS Console.- Add Auto Scaling policies using AWS::AutoScaling::ScalingPolicy.- Integrate CloudWatch alarms and SNS notifications.
 - Modularize further with nested stacks.- Explore serverless projects with AWS SAM
+
+
+-- basic understanding:
+why launch config 
+
+Defines how each EC2 instance in your ASG should be launched:
+
+AMI & instance type
+
+SSH key pair from KeyName
+
+Attach the SG
+
+UserData bootstraps an HTTP server and sets a simple welcome page.
+
+Docs lookup
+
+LaunchConfig: https://docs.aws.amazon.com/AWSCloudFormation/latest/UserGuide/aws-properties-as-launchconfig.html
+
+Aim of compute stack :
+The Compute stack’s primary aim is to stand up and manage your application’s compute layer—separate from networking—by provisioning:
+
+Security Perimeter
+
+A Security Group that allows only HTTP (port 80) inbound traffic from the internet.
+
+Load Balancer
+
+An internet‑facing Application Load Balancer (ALB) across two public subnets for high availability.
+
+A Target Group and Listener that route HTTP requests to healthy back‑end instances.
+
+Instance Configuration
+
+An EC2 Launch Template that defines the AMI, instance type, SSH key, security group, and startup script (UserData) to install and serve a simple web page.
+
+Auto Scaling
+
+An Auto Scaling Group (ASG) that:
+
+Launches a baseline of 2 instances (scaling up to 4 if you add policies later)
+
+Registers them with the Target Group so the ALB can distribute traffic
+
+Automatically replaces any unhealthy instances
+
+
+
+
+******
+By breaking out all of these resources into a dedicated “compute” stack—even though they reference the VPC and subnets exported by your Network stack—you’re achieving:
+
+Modularity & Reuse: You can update or replace your compute layer without touching your networking
+
+Scalability & Fault‑Tolerance: The ALB + ASG pattern ensures traffic is balanced and capacity adjusts to load
+
+Infrastructure as Code: Everything is version‑controlled and repeatable via CloudFormation
+
+In short, the Compute stack turns your raw network fabric (VPC + subnets) into a fully functional, scalable web‑serving environment that you can deploy, update, and tear down with a single CLI command.
