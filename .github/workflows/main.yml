@@ -27,6 +27,6 @@ jobs:
         uses: trufflesecurity/trufflehog@main
         with:
           path: ./
-          github_token: ${{ secrets.GITHUB_TOKEN }}
+          github_token: ${{ secrets.TRUFFLEHOG_TOKEN }}
           extra_args: --only-verified
         
