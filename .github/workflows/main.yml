@@ -1,0 +1,32 @@
+name: 'scanning for credentails leaks'
+
+on:
+  push:
+    branches: main
+  pull_request:
+    branches: main
+
+jobs:
+  trufflehog:
+    name: TruffleHog Scan
+    runs-on: ubuntu-latest
+
+    permissions:
+      contents: read
+      security-events: write
+
+    steps:
+      #step1 checkout the repository code
+      - name: Checkout Code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #step2 trufflehog action to scan for secrets 
+      - name: Run TruffleHog Scan 
+        uses: trufflesecurity/trufflehog@main
+        with:
+          path: ./
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          extra_args: --only-verified
+        
